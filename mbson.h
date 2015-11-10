@@ -47,7 +47,17 @@ typedef struct bsondoc
   int nof_elements;
 } bsondoc;
 
+typedef struct string
+{
+  int size;
+  char *str;
+} string;
 
+typedef struct binary
+{
+  int size;
+  BYTE* data;
+} binary;
 
 #define ERR_DOCTOOSMALL 1
 #define ERR_BADSIZEORENDING 2

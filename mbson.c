@@ -21,21 +21,23 @@ BYTE* next_element(BYTE* p, bsontype eltype)
         case BT_FLOP64BIT:
           p += 8;
           break;
-        case BT_UTF8STRING:
-          while (*p++);
+
+        // first 4 bytes in string and binary data indicate length of data, excluding the first four bytes itself
+        case BT_UTF8STRING:        
+          p += 4 + *(int *) p;
           break;
+        case BT_BINARYDATA:
+          // 4 bytes: size (int32)
+          p += 4 + *(int *) p;
+          break;          
+        // first 4 bytes in doc and array indicate length of the whole binary, including the first four bytes itself
         case BT_EMBEDEDDOC:
-          // 4: doc size (int32), 1: size of null terminator
-          p += 4 + *(int *) p + 1;
+          p += *(int *) p;
           break;
         case BT_ARRAY:
-          // 4: doc size (int32), 1: size of null terminator
-          p += 4 + *(int *) p + 1;
+          p += *(int *) p;
           break;          
-        case BT_BINARYDATA:
-          // 4: doc size (int32), 1: size of null terminator
-          p += 4 + *(int *) p + 1;
-          break;          
+        
         case BT_UNDEFINED:
           // No Value
           break;
@@ -111,7 +113,10 @@ void reade_list(BYTE* p_elist, int e_listsize, element* e_list, int nof_elements
     printf (">>offset=%d\r\n", (int) (p - p_elist));
     #endif
     e_list[i].value = p;
-    p = next_element(p, e_list[i].eltype);      
+    p = next_element(p, e_list[i].eltype); 
+    #ifdef DEBUG
+    printf (">>nextstartswith=%x\r\n", *p);
+    #endif     
     i++;
   }    
 }
@@ -165,17 +170,11 @@ void destroy(bsondoc bsondoc)
   free(bsondoc.e_list);  
 }
 
-string asstring(element el)
-{
-  string ret;
-  ret.size = *(int *)el.value;
-  ret.str = (char *)(el.value + 4);
-  return ret;
-}
 float asfloat(element el)
 {
   return *(float *) el.value;
 }
+
 bsondoc asdoc(element el)
 {
   return bsonread(el.value, 0);
@@ -184,6 +183,13 @@ bsondoc asarray(element el)
 {
   return bsonread(el.value, 0);
 }
+string asstring(element el)
+{
+  string ret;
+  ret.size = *(int *)el.value;
+  ret.str = (char *)(el.value + 4);
+  return ret;
+}
 binary asbinary(element el)
 {
   binary ret;
@@ -191,6 +197,8 @@ binary asbinary(element el)
   ret.data = (BYTE *) (el.value + 4);
   return ret;
 }
+
+
 BYTE* asid(element el)
 {  
   return el.value;
