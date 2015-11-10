@@ -26,15 +26,15 @@ BYTE* next_element(BYTE* p, bsontype eltype)
           break;
         case BT_EMBEDEDDOC:
           // 4: doc size (int32), 1: size of null terminator
-          p += 4 + (int) *p + 1;
+          p += 4 + *(int *) p + 1;
           break;
         case BT_ARRAY:
           // 4: doc size (int32), 1: size of null terminator
-          p += 4 + (int) *p + 1;
+          p += 4 + *(int *) p + 1;
           break;          
         case BT_BINARYDATA:
           // 4: doc size (int32), 1: size of null terminator
-          p += 4 + (int) *p + 1;
+          p += 4 + *(int *) p + 1;
           break;          
         case BT_UNDEFINED:
           // No Value
@@ -73,10 +73,20 @@ int elist_nofelements(BYTE* p_elist, int e_listsize)
   // count elements
   while (p < (p_elist + e_listsize))
   {      
+    #ifdef DEBUG
+    BYTE* temp = p;
+    #endif
     bsontype btype = (BYTE) *(p++);    
     //skip the name
     while (*p++);            
+    #ifdef DEBUG
+    printf("strlen of %s= %d, %x\r\n", (char *)(temp + 1), p - temp, *p);
+    #endif
     p = next_element(p, btype);      
+    #ifdef DEBUG
+    printf("N-C of %s= %d\r\n", (char *)(temp + 1), p - temp);
+    printf("N-C of %s= %d\r\n", (char *)(temp + 1), p - temp);
+    #endif
     nof_elements++;
   }
   return nof_elements;
@@ -98,7 +108,7 @@ void reade_list(BYTE* p_elist, int e_listsize, element* e_list, int nof_elements
     e_list[i].e_name = (char *)p;
     while (*p++);
     #ifdef DEBUG
-    printf (">>%d\r\n", (int) (p - p_elist));
+    printf (">>offset=%d\r\n", (int) (p - p_elist));
     #endif
     e_list[i].value = p;
     p = next_element(p, e_list[i].eltype);      
@@ -120,8 +130,8 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize)
 
   if (!docsize)
   {
-    docsize = (int) *p_bsondoc;
-    #ifdef DEBUG
+    docsize = *(int *) p_bsondoc;
+    #ifdef DEBUG    
     printf("SIZE:%d\r\n", docsize);
     #endif
   // last element should always be 0
@@ -154,3 +164,97 @@ void destroy(bsondoc bsondoc)
 {
   free(bsondoc.e_list);  
 }
+
+string asstring(element el)
+{
+  string ret;
+  ret.size = *(int *)el.value;
+  ret.str = (char *)(el.value + 4);
+  return ret;
+}
+float asfloat(element el)
+{
+  return *(float *) el.value;
+}
+bsondoc asdoc(element el)
+{
+  return bsonread(el.value, 0);
+}
+bsondoc asarray(element el)
+{
+  return bsonread(el.value, 0);
+}
+binary asbinary(element el)
+{
+  binary ret;
+  ret.size = *(int *)el.value;
+  ret.data = (BYTE *) (el.value + 4);
+  return ret;
+}
+BYTE* asid(element el)
+{  
+  return el.value;
+}
+bool asboolean(element el)
+{  
+  return *(el.value);
+}
+uint64_t asdatetime(element el)
+{  
+  return *(uint64_t *) el.value;
+}
+int asint(element el)
+{
+  return *(int *) el.value;
+}
+// void* evaluate(element el)
+// {
+//     switch (el.eltype)
+//     {
+//         case BT_FLOP64BIT:
+//           //return el.value;
+//           break;
+//         case BT_UTF8STRING:
+//           //return &el.value;    
+//           break;
+//         case BT_EMBEDEDDOC:          
+          
+//           //return bsonread (el.value, 0);          
+//           break;
+//         case BT_ARRAY:
+//           // 4: doc size (int32), 1: size of null terminator
+//           p += 4 + *(int *) p + 1;
+//           break;          
+//         case BT_BINARYDATA:
+//           // 4: doc size (int32), 1: size of null terminator
+//           p += 4 + *(int *) p + 1;
+//           break;          
+//         case BT_UNDEFINED:
+//           // No Value
+//           break;
+//         case BT_OBJECTID:
+//           // ObjectID is 12 bytes
+//           p += 12;
+//           break;
+//         case BT_BOOLFALSETRUE:
+//           // one byte 
+//           p ++;
+//           break;
+//         case BT_UTCDATETIME:          
+//           p += 8;
+//           break;
+//         case BT_NULLVALUE:
+//           // No value
+//           break;
+               
+//         case BT_INT32BIT:
+//           p += 4;
+//           break;
+//         case BT_TIMESTAMP:
+//           p += 8;
+//           break;
+//         case BT_INT64BIT:
+//           p += 8;
+//           break;       
+//     }
+// }

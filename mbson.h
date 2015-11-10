@@ -1,7 +1,7 @@
 #ifndef MBSON_H
 
 #define MBSON_H
-#define BYTE char
+#define BYTE uint8_t
 typedef enum bsontype {
   BT_FLOP64BIT = 0x01,
   BT_UTF8STRING = 0x02,

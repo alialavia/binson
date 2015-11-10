@@ -6,17 +6,33 @@
 /*
 // bson test suite
   BYTE test[19]={0x13,0x00,0x00,0x00,BT_INT32BIT,'A','\0',0x01,0x02,0x03,0x04,BT_INT32BIT,'B','\0', 0x05,0x06,0x07,0x08,0x00};
-  bsondoc output = bsonread(test, 0);  
+  */
+void test(BYTE* doc)
+{
+  
+  bsondoc output = bsonread(doc, 0);  
   int i = 0;
   for (i = 0; i < output.nof_elements; i++)
-    printf("0x%x:%s:0x%x\r\n", output.e_list[i].eltype, output.e_list[i].e_name,  *((int*)output.e_list[i].value));
+  {
+    element el = output.e_list[i];
+    printf("0x%x:%s:", el.eltype, el.e_name);
+    switch (el.eltype)
+    {
+        case BT_INT32BIT:
+            printf("%d", asint(el));
+            break;
+        case BT_FLOP64BIT:
+            printf("%d", asfloat(el));
+            break;
+    }
+  }
   
   if (errorno)
     printf ("ERROR #%d\r\n", errorno);
 
   destroy(output);
-  return 0;*/
-
+  //return 0;
+}
 int
 main (int   argc,
       char *argv[])
@@ -64,11 +80,14 @@ main (int   argc,
             abort ();
          }
 
+         /*
          if (fwrite (bson_get_data(&doc), 1, doc.len, stdout) != doc.len) {
             fprintf (stderr, "Failed to write to stdout, exiting.\n");
             exit (1);
-         }
-         bson_reinit (&doc);
+         }*/
+        
+            test(bson_get_data(&doc));
+            bson_reinit (&doc);
       }
 
       bson_json_reader_destroy (reader);
