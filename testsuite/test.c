@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <inttypes.h>
-#include "mbson.c"
+#include "../binson.c"
 /*
 // bson test suite
   BYTE test[19]={0x13,0x00,0x00,0x00,BT_INT32BIT,'A','\0',0x01,0x02,0x03,0x04,BT_INT32BIT,'B','\0', 0x05,0x06,0x07,0x08,0x00};
@@ -44,6 +44,9 @@ void tojson(bsondoc doc, int level, int isarray)
             case BT_FLOP64BIT:
                 printf("\"%lf\"", asdouble(el));
                 break;
+            case BT_BOOLFALSETRUE:
+                printf("\"%s\"", (asboolean(el) ? "true" : "false"));
+                break;
             case BT_UTF8STRING:
                 printf("\"%s\"", asstring(el).str);
                 break;
@@ -52,7 +55,7 @@ void tojson(bsondoc doc, int level, int isarray)
                 tojson(asdoc(el), level + 1, (el.eltype == BT_ARRAY));
                 break;
             default:
-                printf("\"__NOT_IMPL__\"");
+                printf("\"__NOTIMPLEMENTED__\"");
         }
     }   
     if (!isarray)
