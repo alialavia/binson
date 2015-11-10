@@ -27,8 +27,8 @@ BYTE* next_element(BYTE* p, bsontype eltype)
           p += 4 + *(int *) p;
           break;
         case BT_BINARYDATA:
-          // 4 bytes: size (int32)
-          p += 4 + *(int *) p;
+          // 4 bytes: size (int32), 1 byte: subtype
+          p += 4 + *(int *) p + 1;
           break;          
         // first 4 bytes in doc and array indicate length of the whole binary, including the first four bytes itself
         case BT_EMBEDEDDOC:
