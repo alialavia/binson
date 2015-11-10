@@ -19,7 +19,7 @@ void addtabs(int l)
 void tojson(bsondoc doc, int level, int isarray)
 {  
     int i = 0;
-    
+    bsondoc d;
     printf ((isarray) ? "[" : "{");
     
     for (i = 0; i < doc.nof_elements; i++)
@@ -35,7 +35,7 @@ void tojson(bsondoc doc, int level, int isarray)
             addtabs(level); 
             printf("\"%s\": ", el.e_name);
         }        
-            
+        
         switch (el.eltype)
         {
             case BT_INT32BIT:
@@ -52,7 +52,9 @@ void tojson(bsondoc doc, int level, int isarray)
                 break;
             case BT_EMBEDEDDOC:
             case BT_ARRAY:
-                tojson(asdoc(el), level + 1, (el.eltype == BT_ARRAY));
+                d = asdoc(el);
+                tojson(d, level + 1, (el.eltype == BT_ARRAY));
+                destroy(d);
                 break;
             default:
                 printf("\"__NOTIMPLEMENTED__\"");
@@ -87,9 +89,15 @@ main (int   argc,
     exit (1);
     }
     fread(content, info.st_size, 1, fp);
-    fclose(fp);
+    fclose(fp);    
     bsondoc output = bsonread(content, 0);
+    if (errorno != 0)
+    {
+        fprintf(stderr, "ERROR #%d", errorno);
+        exit (1);
+    }
     tojson(output, 1, 0);
     printf("\n");
     destroy(output);
+    free(content);
 }

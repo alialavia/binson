@@ -25,18 +25,18 @@ BYTE* next_element(BYTE* p, bsontype eltype)
 
         // first 4 bytes in string and binary data indicate length of data, excluding the first four bytes itself
         case BT_UTF8STRING:        
-          p += 4 + *(uint32_t *) p;
+          p += 4 + *(int32_t *) p;
           break;
         case BT_BINARYDATA:
           // 4 bytes: size (int32), 1 byte: subtype
-          p += 4 + *(uint32_t *) p + 1;
+          p += 4 + *(int32_t *) p + 1;
           break;          
         // first 4 bytes in doc and array indicate length of the whole binary, including the first four bytes itself
         case BT_EMBEDEDDOC:
-          p += *(uint32_t *) p;
+          p += *(int32_t *) p;
           break;
         case BT_ARRAY:
-          p += *(uint32_t *) p;
+          p += *(int32_t *) p;
           break;          
         
         case BT_UNDEFINED:
@@ -136,7 +136,7 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize)
 
   if (!docsize)
   {
-    docsize = *(uint32_t *) p_bsondoc;
+    docsize = *(int32_t *) p_bsondoc;
     #ifdef DEBUG    
     printf("SIZE:%d\r\n", docsize);
     #endif
@@ -156,7 +156,11 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize)
   printf ("NOFEL=%d\r\n", nof_elements);
   #endif
   element* e_list = calloc (sizeof (element), nof_elements);  
-
+  if (!e_list)
+  {
+    errorno = ERR_NOTENOUGHMEMORY;
+    return;
+  }
   // read into array
   reade_list(p, docsize - 5, e_list, nof_elements); 
   
@@ -166,40 +170,40 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize)
   return ret;
 }
 
-inline void destroy(bsondoc bsondoc)
+void destroy(bsondoc bsondoc)
 {
   free(bsondoc.e_list);  
 }
 
-inline float asdouble(element el)
+float asdouble(element el)
 {
   return *(double *) el.value;
 }
 
-inline bsondoc asdoc(element el)
+bsondoc asdoc(element el)
 {
   return bsonread(el.value, 0);
 }
 
-inline bsondoc asarray(element el)
+bsondoc asarray(element el)
 {
   return bsonread(el.value, 0);
 }
 
-inline string asstring(element el)
+string asstring(element el)
 {
   string ret;
-  ret.size = *(uint32_t *)el.value;
+  ret.size = *(int *)el.value;
   ret.str = (char *)(el.value + 4);
   return ret;
 }
 
-inline const char* ascharp(element el)
+const char* ascharp(element el)
 {
   return (char *)(el.value + 4);  
 }
 
-inline binary asbinary(element el)
+binary asbinary(element el)
 {
   binary ret;
   ret.size = *(int *)el.value;
@@ -207,27 +211,27 @@ inline binary asbinary(element el)
   return ret;
 }
 
-inline const BYTE* asbytep(element el)
+const BYTE* asbytep(element el)
 {
   return (el.value + 4);  
 }
 
-inline BYTE* asid(element el)
+BYTE* asid(element el)
 {  
   return el.value;
 }
 
-inline bool asboolean(element el)
+bool asboolean(element el)
 {  
   return *(el.value);
 }
 
-inline uint64_t asdatetime(element el)
+uint64_t asdatetime(element el)
 {  
-  return *(uint64_t *) el.value;
+  return *(int64_t *) el.value;
 }
 
-inline int32_t asint(element el)
+int32_t asint(element el)
 {
   return *(int32_t *) el.value;
 }

@@ -8,6 +8,7 @@
 #define ERR_DOCTOOSMALL 1
 #define ERR_BADSIZEORENDING 2
 #define ERR_ELIST_BADSIZEORENDING 3
+#define ERR_NOTENOUGHMEMORY 4
 
 #define BYTE uint8_t
 #define bool uint8_t
@@ -78,16 +79,16 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize);
 void destroy(bsondoc bsondoc);
 
 /* Typecase helpers */
-inline float asdouble(element el);
-inline bsondoc asdoc(element el);
-inline bsondoc asarray(element el);
-inline string asstring(element el);
-inline const char* ascharp(element el);
-inline binary asbinary(element el); 
-inline const BYTE* asbytep(element el);
-inline BYTE* asid(element el);
-inline bool asboolean(element el);
-inline uint64_t asdatetime(element el);
-inline int32_t asint(element el);
+float asdouble(element el);
+bsondoc asdoc(element el);
+bsondoc asarray(element el);
+string asstring(element el);
+const char* ascharp(element el);
+binary asbinary(element el); 
+const BYTE* asbytep(element el);
+BYTE* asid(element el);
+bool asboolean(element el);
+uint64_t asdatetime(element el);
+int32_t asint(element el);
 
 #endif
