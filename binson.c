@@ -11,8 +11,8 @@
 #include "binson.h"
 #include <stdlib.h>
 #include <inttypes.h>
+#include <stdint.h>
 
-#define bool uint8_t
 int errorno = 0;
 
 BYTE* next_element(BYTE* p, bsontype eltype)
@@ -166,27 +166,27 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize)
   return ret;
 }
 
-void destroy(bsondoc bsondoc)
+inline void destroy(bsondoc bsondoc)
 {
   free(bsondoc.e_list);  
 }
 
-float asdouble(element el)
+inline float asdouble(element el)
 {
   return *(double *) el.value;
 }
 
-bsondoc asdoc(element el)
+inline bsondoc asdoc(element el)
 {
   return bsonread(el.value, 0);
 }
 
-bsondoc asarray(element el)
+inline bsondoc asarray(element el)
 {
   return bsonread(el.value, 0);
 }
 
-string asstring(element el)
+inline string asstring(element el)
 {
   string ret;
   ret.size = *(uint32_t *)el.value;
@@ -194,12 +194,12 @@ string asstring(element el)
   return ret;
 }
 
-const char* ascharp(element el)
+inline const char* ascharp(element el)
 {
   return (char *)(el.value + 4);  
 }
 
-binary asbinary(element el)
+inline binary asbinary(element el)
 {
   binary ret;
   ret.size = *(int *)el.value;
@@ -207,27 +207,27 @@ binary asbinary(element el)
   return ret;
 }
 
-const BYTE* asbytep(element el)
+inline const BYTE* asbytep(element el)
 {
   return (el.value + 4);  
 }
 
-BYTE* asid(element el)
+inline BYTE* asid(element el)
 {  
   return el.value;
 }
 
-bool asboolean(element el)
+inline bool asboolean(element el)
 {  
   return *(el.value);
 }
 
-uint64_t asdatetime(element el)
+inline uint64_t asdatetime(element el)
 {  
   return *(uint64_t *) el.value;
 }
 
-int32_t asint(element el)
+inline int32_t asint(element el)
 {
   return *(int32_t *) el.value;
 }

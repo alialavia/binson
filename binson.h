@@ -1,7 +1,18 @@
 #ifndef BINSON_H
-
 #define BINSON_H
+
+#include <unistd.h>
+#include <inttypes.h>
+
+/* MACROS */
+#define ERR_DOCTOOSMALL 1
+#define ERR_BADSIZEORENDING 2
+#define ERR_ELIST_BADSIZEORENDING 3
+
 #define BYTE uint8_t
+#define bool uint8_t
+
+
 typedef enum bsontype {
   BT_FLOP64BIT = 0x01,
   BT_UTF8STRING = 0x02,
@@ -59,7 +70,24 @@ typedef struct binary
   BYTE* data;
 } binary;
 
-#define ERR_DOCTOOSMALL 1
-#define ERR_BADSIZEORENDING 2
-#define ERR_ELIST_BADSIZEORENDING 3
+/* Core functions */
+BYTE* next_element(BYTE* p, bsontype eltype);
+int elist_nofelements(BYTE* p_elist, int e_listsize);
+void reade_list(BYTE* p_elist, int e_listsize, element* e_list, int nof_elements);
+bsondoc bsonread(BYTE* p_bsondoc, int docsize);
+void destroy(bsondoc bsondoc);
+
+/* Typecase helpers */
+inline float asdouble(element el);
+inline bsondoc asdoc(element el);
+inline bsondoc asarray(element el);
+inline string asstring(element el);
+inline const char* ascharp(element el);
+inline binary asbinary(element el); 
+inline const BYTE* asbytep(element el);
+inline BYTE* asid(element el);
+inline bool asboolean(element el);
+inline uint64_t asdatetime(element el);
+inline int32_t asint(element el);
+
 #endif
