@@ -10,8 +10,8 @@
 */
 #include "mbson.h"
 #include <stdlib.h>
-
-
+#include <stdint.h>
+#define bool uint8_t
 int errorno = 0;
 
 BYTE* next_element(BYTE* p, bsontype eltype)
@@ -24,18 +24,18 @@ BYTE* next_element(BYTE* p, bsontype eltype)
 
         // first 4 bytes in string and binary data indicate length of data, excluding the first four bytes itself
         case BT_UTF8STRING:        
-          p += 4 + *(int *) p;
+          p += 4 + *(uint32_t *) p;
           break;
         case BT_BINARYDATA:
           // 4 bytes: size (int32), 1 byte: subtype
-          p += 4 + *(int *) p + 1;
+          p += 4 + *(uint32_t *) p + 1;
           break;          
         // first 4 bytes in doc and array indicate length of the whole binary, including the first four bytes itself
         case BT_EMBEDEDDOC:
-          p += *(int *) p;
+          p += *(uint32_t *) p;
           break;
         case BT_ARRAY:
-          p += *(int *) p;
+          p += *(uint32_t *) p;
           break;          
         
         case BT_UNDEFINED:
@@ -135,7 +135,7 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize)
 
   if (!docsize)
   {
-    docsize = *(int *) p_bsondoc;
+    docsize = *(uint32_t *) p_bsondoc;
     #ifdef DEBUG    
     printf("SIZE:%d\r\n", docsize);
     #endif
@@ -170,26 +170,34 @@ void destroy(bsondoc bsondoc)
   free(bsondoc.e_list);  
 }
 
-float asfloat(element el)
+float asdouble(element el)
 {
-  return *(float *) el.value;
+  return *(double *) el.value;
 }
 
 bsondoc asdoc(element el)
 {
   return bsonread(el.value, 0);
 }
+
 bsondoc asarray(element el)
 {
   return bsonread(el.value, 0);
 }
+
 string asstring(element el)
 {
   string ret;
-  ret.size = *(int *)el.value;
+  ret.size = *(uint32_t *)el.value;
   ret.str = (char *)(el.value + 4);
   return ret;
 }
+
+const char* ascharp(element el)
+{
+  return (char *)(el.value + 4);  
+}
+
 binary asbinary(element el)
 {
   binary ret;
@@ -198,71 +206,27 @@ binary asbinary(element el)
   return ret;
 }
 
+const BYTE* asbytep(element el)
+{
+  return (el.value + 4);  
+}
 
 BYTE* asid(element el)
 {  
   return el.value;
 }
+
 bool asboolean(element el)
 {  
   return *(el.value);
 }
+
 uint64_t asdatetime(element el)
 {  
   return *(uint64_t *) el.value;
 }
-int asint(element el)
+
+int32_t asint(element el)
 {
-  return *(int *) el.value;
+  return *(int32_t *) el.value;
 }
-// void* evaluate(element el)
-// {
-//     switch (el.eltype)
-//     {
-//         case BT_FLOP64BIT:
-//           //return el.value;
-//           break;
-//         case BT_UTF8STRING:
-//           //return &el.value;    
-//           break;
-//         case BT_EMBEDEDDOC:          
-          
-//           //return bsonread (el.value, 0);          
-//           break;
-//         case BT_ARRAY:
-//           // 4: doc size (int32), 1: size of null terminator
-//           p += 4 + *(int *) p + 1;
-//           break;          
-//         case BT_BINARYDATA:
-//           // 4: doc size (int32), 1: size of null terminator
-//           p += 4 + *(int *) p + 1;
-//           break;          
-//         case BT_UNDEFINED:
-//           // No Value
-//           break;
-//         case BT_OBJECTID:
-//           // ObjectID is 12 bytes
-//           p += 12;
-//           break;
-//         case BT_BOOLFALSETRUE:
-//           // one byte 
-//           p ++;
-//           break;
-//         case BT_UTCDATETIME:          
-//           p += 8;
-//           break;
-//         case BT_NULLVALUE:
-//           // No value
-//           break;
-               
-//         case BT_INT32BIT:
-//           p += 4;
-//           break;
-//         case BT_TIMESTAMP:
-//           p += 8;
-//           break;
-//         case BT_INT64BIT:
-//           p += 8;
-//           break;       
-//     }
-// }

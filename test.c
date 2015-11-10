@@ -1,7 +1,9 @@
-#include <bson.h>
-#include <stdlib.h>
 #include <stdio.h>
-//#include "mbson.h"
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <inttypes.h>
 #include "mbson.c"
 /*
 // bson test suite
@@ -13,6 +15,7 @@ void addtabs(int l)
     for (j = 0;j < l; j++)
         printf("\t");
 }
+
 void tojson(bsondoc doc, int level, int isarray)
 {  
     int i = 0;
@@ -23,15 +26,12 @@ void tojson(bsondoc doc, int level, int isarray)
     {
 
         element el = doc.e_list[i];
-        
-        if (isarray)       
+        if (i > 0)
+            printf(", ");
+
+        if (!isarray)
         {
-            if (i > 0)
-                printf(", ");
-        }
-        else
-        {
-            printf ("\r\n");
+            printf ("\n");
             addtabs(level); 
             printf("\"%s\": ", el.e_name);
         }        
@@ -42,14 +42,14 @@ void tojson(bsondoc doc, int level, int isarray)
                 printf("\"%d\"", asint(el));
                 break;
             case BT_FLOP64BIT:
-                printf("\"%f\"", asfloat(el));
+                printf("\"%lf\"", asdouble(el));
                 break;
             case BT_UTF8STRING:
                 printf("\"%s\"", asstring(el).str);
                 break;
             case BT_EMBEDEDDOC:
             case BT_ARRAY:
-                test(asdoc(el), level + 1, (el.eltype == BT_ARRAY));
+                tojson(asdoc(el), level + 1, (el.eltype == BT_ARRAY));
                 break;
             default:
                 printf("\"__NOT_IMPL__\"");
@@ -57,77 +57,36 @@ void tojson(bsondoc doc, int level, int isarray)
     }   
     if (!isarray)
     {
-        printf ("\r\n");
-        addtabs(level); 
+        printf ("\n");
+        addtabs(level - 1); 
     }
     printf ((isarray) ? "]" : "}");
     if (errorno)
-    printf ("ERROR #%d\r\n", errorno);
-
-
-  //return 0;
+        printf ("ERROR #%d\n", errorno);    
 }
+
 int
 main (int   argc,
       char *argv[])
 {
-   bson_json_reader_t *reader;
-   bson_error_t error;
-   const char *filename;
-   bson_t doc = BSON_INITIALIZER;
-   int i;
-   int b;
-
-   /*
-    * Print program usage if no arguments are provided.
-    */
-   if (argc == 1) {
-      fprintf (stderr, "usage: %s FILE...\n", argv[0]);
+    if (argc == 1) {
+      fprintf (stderr, "usage: %s FILE\n", argv[0]);
       return 1;
-   }
-
-   /*
-    * Process command line arguments expecting each to be a filename.
-    */
-   for (i = 1; i < argc; i++) {
-      filename = argv[i];
-
-      /*
-       * Open the filename provided in command line arguments.
-       */
-      if (0 == strcmp (filename, "-")) {
-         reader = bson_json_reader_new_from_fd (STDIN_FILENO, false);
-      } else {
-         if (!(reader = bson_json_reader_new_from_file (filename, &error))) {
-            fprintf (stderr, "Failed to open \"%s\": %s\n",
-                     filename, error.message);
-            continue;
-         }
-      }
-
-      /*
-       * Convert each incoming document to BSON and print to stdout.
-       */
-      while ((b = bson_json_reader_read (reader, &doc, &error))) {
-         if (b < 0) {
-            fprintf (stderr, "Error in json parsing:\n%s\n", error.message);
-            abort ();
-         }
-
-         /*
-         if (fwrite (bson_get_data(&doc), 1, doc.len, stdout) != doc.len) {
-            fprintf (stderr, "Failed to write to stdout, exiting.\n");
-            exit (1);
-         }*/
-            bsondoc output = bsonread(bson_get_data(&doc), 0);  
-            test(output, 0, 0);
-            destroy(output);
-            bson_reinit (&doc);
-      }
-
-      bson_json_reader_destroy (reader);
-      bson_destroy (&doc);
-   }
-
-   return 0;
+    }
+    const char *filename = argv[1];
+    struct stat info;
+    stat(filename, &info);
+    FILE* fp = fopen(filename, "rb");
+    BYTE* content = malloc(info.st_size);
+    if (!content)
+    {
+    fprintf(stderr, "Not enough memory to open file\n");
+    exit (1);
+    }
+    fread(content, info.st_size, 1, fp);
+    fclose(fp);
+    bsondoc output = bsonread(content, 0);
+    tojson(output, 1, 0);
+    printf("\n");
+    destroy(output);
 }
