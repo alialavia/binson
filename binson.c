@@ -10,7 +10,8 @@
 */
 #include "binson.h"
 #include <stdlib.h>
-#include <stdint.h>
+#include <inttypes.h>
+
 #define bool uint8_t
 int errorno = 0;
 
