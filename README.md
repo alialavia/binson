@@ -2,6 +2,10 @@
 
 This implementation targets embedded devices, thus is focused on minimum memory and flash footprints.
 
+You can use binsoncore.h for minimum memory footprint. It doesn't allocate any dynamic memory. For a sample usage take a look at testsiute/testcore.c.
+
+You can also use binson.h which creates more advanced data structure and should offer faster lookup. For a sample usage take a look at testsuite/test.c.
+
 Binson creates a dynamic array. Each element has a type and two pointers to key and value pairs in the bson. 
 Type field is 1 byte, and key and value pointers are 4 bytes each (on a 32-bit address bus system), hence total dynamic memory allocated would be (1+4+4 = 9) x number of elements in bson.
 
@@ -9,7 +13,8 @@ The array can be used to iterate over elements. Helpers functions asxxx (asboole
 A simple bson to json is provided both as an example as to be used for running tests.
 
 ## Dependencies
-Nothing but stdlib and inttypes
+binsoncore.h uses inttypes.h
+binson.h uses stdlib as well
 
 ## Testsuite
 
@@ -18,5 +23,7 @@ Test cases are from [JSON-Schema-Test-Suite](https://github.com/json-schema/JSON
 
 #TODO
 Run all test cases
-Write a rawlookup function
+Analyze memory footprint
+Organize include files
+Write lookup functions for binson.h
 
