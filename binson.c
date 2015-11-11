@@ -8,67 +8,14 @@
    Any BSON is represented as a bsondoc struct
 
 */
+
 #include "binson.h"
+
+
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdint.h>
 
-int errorno = 0;
-
-BYTE* next_element(BYTE* p, bsontype eltype)
-{
-  switch (eltype)
-    {
-        case BT_FLOP64BIT:
-          p += 8;
-          break;
-
-        // first 4 bytes in string and binary data indicate length of data, excluding the first four bytes itself
-        case BT_UTF8STRING:        
-          p += 4 + *(int32_t *) p;
-          break;
-        case BT_BINARYDATA:
-          // 4 bytes: size (int32), 1 byte: subtype
-          p += 4 + *(int32_t *) p + 1;
-          break;          
-        // first 4 bytes in doc and array indicate length of the whole binary, including the first four bytes itself
-        case BT_EMBEDEDDOC:
-          p += *(int32_t *) p;
-          break;
-        case BT_ARRAY:
-          p += *(int32_t *) p;
-          break;          
-        
-        case BT_UNDEFINED:
-          // No Value
-          break;
-        case BT_OBJECTID:
-          // ObjectID is 12 bytes
-          p += 12;
-          break;
-        case BT_BOOLFALSETRUE:
-          // one byte 
-          p ++;
-          break;
-        case BT_UTCDATETIME:          
-          p += 8;
-          break;
-        case BT_NULLVALUE:
-          // No value
-          break;
-               
-        case BT_INT32BIT:
-          p += 4;
-          break;
-        case BT_TIMESTAMP:
-          p += 8;
-          break;
-        case BT_INT64BIT:
-          p += 8;
-          break;       
-    }
-    return p;
-}
 int elist_nofelements(BYTE* p_elist, int e_listsize)
 {
   BYTE* p = p_elist;
@@ -95,7 +42,7 @@ int elist_nofelements(BYTE* p_elist, int e_listsize)
   return nof_elements;
 }
 
-void reade_list(BYTE* p_elist, int e_listsize, element* e_list, int nof_elements)
+void reade_list(BYTE* p_elist, int e_listsize, stelement* e_list, int nof_elements)
 {  
   BYTE* p = p_elist;
   int i = 0;
@@ -127,7 +74,6 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize)
   BYTE* p = p_bsondoc;
   bsondoc ret;
   // sanity checks
-
   if ((sizeof p_bsondoc) < 5)  
   {
     errorno = ERR_DOCTOOSMALL;
@@ -140,7 +86,7 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize)
     #ifdef DEBUG    
     printf("SIZE:%d\r\n", docsize);
     #endif
-  // last element should always be 0
+  // last stelement should always be 0
     if ((p_bsondoc[docsize-1]) != 0x00)
     {
       errorno = ERR_BADSIZEORENDING;
@@ -155,7 +101,7 @@ bsondoc bsonread(BYTE* p_bsondoc, int docsize)
   #ifdef DEBUG
   printf ("NOFEL=%d\r\n", nof_elements);
   #endif
-  element* e_list = calloc (sizeof (element), nof_elements);  
+  stelement* e_list = calloc (sizeof (stelement), nof_elements);  
   if (!e_list)
   {
     errorno = ERR_NOTENOUGHMEMORY;
@@ -175,22 +121,22 @@ void destroy(bsondoc bsondoc)
   free(bsondoc.e_list);  
 }
 
-float asdouble(element el)
+float todouble(stelement el)
 {
   return *(double *) el.value;
 }
 
-bsondoc asdoc(element el)
+bsondoc todoc(stelement el)
 {
   return bsonread(el.value, 0);
 }
 
-bsondoc asarray(element el)
+bsondoc toarray(stelement el)
 {
   return bsonread(el.value, 0);
 }
 
-string asstring(element el)
+string tostring(stelement el)
 {
   string ret;
   ret.size = *(int *)el.value;
@@ -198,12 +144,12 @@ string asstring(element el)
   return ret;
 }
 
-const char* ascharp(element el)
+const char* tocharp(stelement el)
 {
   return (char *)(el.value + 4);  
 }
 
-binary asbinary(element el)
+binary tobinary(stelement el)
 {
   binary ret;
   ret.size = *(int *)el.value;
@@ -211,27 +157,27 @@ binary asbinary(element el)
   return ret;
 }
 
-const BYTE* asbytep(element el)
+const BYTE* tobytep(stelement el)
 {
   return (el.value + 4);  
 }
 
-BYTE* asid(element el)
+BYTE* toid(stelement el)
 {  
   return el.value;
 }
 
-bool asboolean(element el)
+bool toboolean(stelement el)
 {  
   return *(el.value);
 }
 
-uint64_t asdatetime(element el)
+uint64_t todatetime(stelement el)
 {  
   return *(int64_t *) el.value;
 }
 
-int32_t asint(element el)
+int32_t toint(stelement el)
 {
   return *(int32_t *) el.value;
 }

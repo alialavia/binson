@@ -4,11 +4,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <inttypes.h>
-#include "../binson.c"
-/*
-// bson test suite
-  BYTE test[19]={0x13,0x00,0x00,0x00,BT_INT32BIT,'A','\0',0x01,0x02,0x03,0x04,BT_INT32BIT,'B','\0', 0x05,0x06,0x07,0x08,0x00};
-  */
+#include "../binson.h"
+
 void addtabs(int l)
 {
     int j = 0;
@@ -25,7 +22,7 @@ void tojson(bsondoc doc, int level, int isarray)
     for (i = 0; i < doc.nof_elements; i++)
     {
 
-        element el = doc.e_list[i];
+        stelement el = doc.e_list[i];
         if (i > 0)
             printf(", ");
 
@@ -39,20 +36,20 @@ void tojson(bsondoc doc, int level, int isarray)
         switch (el.eltype)
         {
             case BT_INT32BIT:
-                printf("\"%d\"", asint(el));
+                printf("\"%d\"", toint(el));
                 break;
             case BT_FLOP64BIT:
-                printf("\"%lf\"", asdouble(el));
+                printf("\"%lf\"", todouble(el));
                 break;
             case BT_BOOLFALSETRUE:
-                printf("\"%s\"", (asboolean(el) ? "true" : "false"));
+                printf("\"%s\"", (toboolean(el) ? "true" : "false"));
                 break;
             case BT_UTF8STRING:
-                printf("\"%s\"", asstring(el).str);
+                printf("\"%s\"", tostring(el).str);
                 break;
             case BT_EMBEDEDDOC:
             case BT_ARRAY:
-                d = asdoc(el);
+                d = todoc(el);
                 tojson(d, level + 1, (el.eltype == BT_ARRAY));
                 destroy(d);
                 break;

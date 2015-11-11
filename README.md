@@ -17,5 +17,6 @@ jsontobson.c uses MongoDB's [libbson](https://github.com/mongodb/libbson/) to co
 Test cases are from [JSON-Schema-Test-Suite](https://github.com/json-schema/JSON-Schema-Test-Suite)
 
 #TODO
-
 Run all test cases
+Write a rawlookup function
+
