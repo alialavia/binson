@@ -10,11 +10,19 @@ Here is how it works:
 
 ```c
 /*
-Assume we loade bson representation of the following json into a byte array (content)
+Assume we load bson representation of the following json 
 { [{ID : 123, Personal: {Name: 'Mike', Age: 25}}, {ID : 124, Personal: 
 {Name: 'Alex', Age: 30}}] }
 
+for example from a file:
+#define FILENAME "employees.bson"
+
+struct stat info;
+stat(FILENAME, &info);
+FILE* fp = fopen(FILENAME, "rb");
+BYTE* content = malloc(info.st_size);
 */
+
 BYTE* doc = opendoc(content, 0); //Load content into a doc. Second argument is the length of the byte array. Leave it as 0 if unknown and it will be automatically determined.
 
 if (errorno != 0)   // You can check errorno after every operation 
