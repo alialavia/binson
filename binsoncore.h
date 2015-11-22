@@ -58,4 +58,9 @@ value opendoc(BYTE* buffer, int len);
 element lookup(value buffer, char* name, int n);
 char* getkey(BYTE* buffer);
 
+/* convert a primitive value to its corresponding c type */
+inline int32_t asint(value v);
+inline double asdouble(value v);
+inline bool asboolean(value v);
+inline char* asstring(value v);
 #endif

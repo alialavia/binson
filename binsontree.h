@@ -1,5 +1,5 @@
-#ifndef BINSON_H
-#define BINSON_H
+#ifndef BINSONTREE_H
+#define BINSONTREE_H
 
 #include "binsoncore.h"
 #include <unistd.h>
