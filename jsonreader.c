@@ -17,6 +17,7 @@ inline int isWhitespace(char c)
 {
     return (c == TAB || c == LF || c == CR || c == CR || c == SP);
 }
+
 /* Returns length of the UTF-8 character */
 int symbol_len(char c)
 {
@@ -40,7 +41,13 @@ int json_readarray(char **jsonstr)
 
         while (isWhitespace(**jsonstr))
             (*jsonstr)++;
-        (*jsonstr)++; // skip ',' or ']'
+
+        if (**jsonstr == ',')
+            (*jsonstr)++;
+        else if (**jsonstr == ']')
+            break;
+        else
+            return JS_BAD_FORMAT_COMMA_EXPECTED | JS_BAD_FORMAT_CLOSING_SQUARE_BRACE_EXPECTED;
     }
     if (**jsonstr != ']')
         return JS_BAD_FORMAT_CLOSING_SQUARE_BRACE_EXPECTED;
@@ -60,7 +67,6 @@ int json_readobj(char **jsonstr)
         // read name
         if ((ret = json_readstring(jsonstr)) < 0)
             return ret;
-//        (*jsonstr)++; // skip closing "
 
         name++; // skip opening "
         LOG("<name (%d): %.*s>\r\n", ret, ret, name);
@@ -79,10 +85,12 @@ int json_readobj(char **jsonstr)
         while (isWhitespace(**jsonstr))
             (*jsonstr)++;
 
-        if (**jsonstr != ',')
-            return JS_BAD_FORMAT_COMMA_EXPECTED;
-
-        (*jsonstr)++; // skip ','
+        if (**jsonstr == ',')
+            (*jsonstr)++; // skip ','
+        else if (**jsonstr == '}')
+            break;
+        else
+            return JS_BAD_FORMAT_COMMA_EXPECTED | JS_BAD_FORMAT_CLOSING_CURLY_BRACE_EXPECTED;
     }
     if (**jsonstr != '}')
         return JS_BAD_FORMAT_CLOSING_CURLY_BRACE_EXPECTED;
@@ -157,7 +165,7 @@ int matchJSONNumber (char **jsonstr)
 int read_value(char **jsonstr)
 {
     jsontype valtype = 0x0;
-    int counter = 0;
+    int ret = 0;
     if (!*jsonstr)
         return -1;
     while (**jsonstr)
@@ -167,31 +175,41 @@ int read_value(char **jsonstr)
 
         if (**jsonstr == '{') {
             valtype = JS_OBJECT;
-            json_readobj(jsonstr);
+            if ((ret = json_readobj(jsonstr)) < 0)
+                return ret;
+            return 0;
         }
         else if (**jsonstr == '[') {
             valtype = JS_ARRAY;
-            json_readarray(jsonstr);
+            if ((ret = json_readarray(jsonstr)) < 0)
+                return ret;
+            return 0;
         }
         else if (**jsonstr == '\"') {
             valtype = JS_STRING;
-            json_readstring(jsonstr);
+            if ((ret = json_readstring(jsonstr)) < 0)
+                return ret;
+            return 0;
         }
         else if (**jsonstr == 'f') {
             valtype = JS_FALSE;
             *jsonstr += 5;
+            return 0;
         }
         else if (**jsonstr == 't') {
             valtype = JS_TRUE;
             *jsonstr += 4;
+            return 0;
         }
         else if (**jsonstr == 'n') {
             valtype = JS_NULL;
             *jsonstr += 4;
+            return 0;
         }
-        else if ((counter = matchJSONNumber(jsonstr)) > 0) {
+        else if ((ret = matchJSONNumber(jsonstr)) > 0) {
             valtype = JS_NUMBER;
-            json_readnumber(jsonstr, counter);
+            json_readnumber(jsonstr, ret);
+            return 0;
         }
         else
         {
