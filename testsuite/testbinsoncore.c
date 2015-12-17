@@ -98,10 +98,7 @@ main (int   argc,
     }
     //convert bson to json and print 
     tojson(doc, 1, 1);
-    //BYTE* ar0  = lookup(doc, "0", 1);
-    //BYTE* ar00 = lookup(opendoc(getvalue(ar0), 0), "description", 11);
-    //printf (">>0x%X", (ar00 ? *ar00 : 0));
-    //printf ("%s", asstring(getvalue(ar00)));
+
     BYTE* l = lookuppath(doc, "0/schema/properties/foo/type");
     if (l)
         printf ("%s", asstring(getvalue(l)));

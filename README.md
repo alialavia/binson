@@ -67,7 +67,7 @@ A simple bson to json is provided both as an example as to be used for running t
 
 ## Testsuite
 
-jsontobson.c uses MongoDB's [libbson](https://github.com/mongodb/libbson/) to convert json to bson. You don't need it unless you want to run test cases.
+read_value.c uses MongoDB's [libbson](https://github.com/mongodb/libbson/) to convert json to bson. You don't need it unless you want to run test cases.
 Test cases are from [JSON-Schema-Test-Suite](https://github.com/json-schema/JSON-Schema-Test-Suite)
 
 #TODO
