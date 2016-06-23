@@ -18,6 +18,8 @@ int errorno;
 typedef BYTE* value;
 typedef BYTE* key;
 typedef BYTE* element;
+typedef BYTE* e_list;
+
 
 typedef enum bsontype {
   BT_FLOP64BIT = 0x01,
@@ -51,15 +53,36 @@ typedef enum bsonsubtype {
 } bsonsubtype;
 
 /* core functions */
+
+/* return the element after value p. Value p has type eltype */
 element next_element(value p, bsontype eltype);
+
+/* return the element after keyvalue pair p */
 element nextitem(element p);
+
+/* getvalue of element buffer */
 value getvalue(element buffer);
-value opendoc(BYTE* buffer, int len);
-element lookup(value buffer, char* name, int n);
-char* getkey(BYTE* buffer);
+
+/* returns first element of the array/doc */
+element opendoc(BYTE* buffer, int len);
+
+/* lookup in an array/doc value for a specific key 'key'. key string has lenght n */
+element lookup(value buffer, char* key, int n);
+
+/* gets key of a keyvalue pair */
+char* getkey(element buffer);
+
+/* get type of a keyvalue pair's value */
+BYTE gettype(element buffer);
+
+/* get length of array/doc */
+int32_t getdoclen(BYTE* buffer);
+
 
 /* convert a primitive value to its corresponding c type */
+
 inline int32_t asint(value v);
+
 inline double asdouble(value v);
 inline bool asboolean(value v);
 inline char* asstring(value v);

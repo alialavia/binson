@@ -62,6 +62,7 @@ element next_element(value p, bsontype eltype)
   return p;
 }
 
+/* Returns next keyvalue pair. If there is no item left, p points to the byte after the current element */
 element nextitem(element p)
 {
   BYTE type = *(p++);
@@ -69,6 +70,7 @@ element nextitem(element p)
   return next_element(p, type);
 }
 
+/* returns value of a keyvalue pair */
 value getvalue(element buffer)
 { 
   if (gettype(buffer) == 0)
@@ -80,12 +82,16 @@ value getvalue(element buffer)
   while (*(buffer++));
   return buffer;
 }
-
-value opendoc(BYTE* buffer, int len)
+int32_t getdoclen(BYTE* buffer)
+{
+  return *(int32_t *) buffer;
+}
+/* opens a buffer pointing to the beginning of a bson document */
+element opendoc(BYTE* buffer, int len)
 {  
   errorno = 0;
   if (!len)
-    len = *(int32_t *) buffer;    
+    len = getdoclen(buffer);    
   
   #ifdef DEBUG
   printf("SIZE, end:%d 0X%x\r\n", len, buffer[len-1]);
@@ -100,6 +106,7 @@ value opendoc(BYTE* buffer, int len)
   return buffer + 4;
 }
 
+/* */
 element lookup(value buffer, char* key, int n)
 {    
   /* returns pointer to the beginning of the field with key = key */
