@@ -1,6 +1,6 @@
 # binson: A minimum bson implementation for embedded systems
 
-This implementation targets embedded devices, thus is focused on minimum memory and flash footprints.
+This implementation targets embedded devices, thus is focused on minimum memory and flash footprints. 
 
 ## binsoncore
 
