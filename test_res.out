@@ -1,0 +1,172 @@
+test1
+test10
+1c1
+< { "regex" :  "(0xB) __NOTIMPLEMENTED__", "234" :  "(0x31) __NOTIMPLEMENTED__", "" :  "(0x69) __NOTIMPLEMENTED__" }
+---
+> { "regex" : { "$regex" : "1234", "$options" : "i" } }
+test11
+test12
+test13
+test14
+test15
+1c1
+< { "array[datetime]" : [ 0, 11 ] }
+---
+> { "array[datetime]" : [ { "$date" : 0 }, { "$date" : 1319285594123 } ] }
+test16
+test17
+1c1
+< { "_id" :  "(0x7) __NOTIMPLEMENTED__", "document" : { "_id" :  "(0x7) __NOTIMPLEMENTED__", "tags" : [ "1", "2", "3", "4" ], "text" : "asdfanother", "source" : { "name" : "blah" } }, "type" : [ "source" ], "missing" : [ "server_created_at" ] }
+---
+> { "_id" : { "$oid" : "000000000000000000012345" }, "document" : { "_id" : { "$oid" : "000000000000000000012345" }, "tags" : [ "1", "2", "3", "4" ], "text" : "asdfanother", "source" : { "name" : "blah" } }, "type" : [ "source" ], "missing" : [ "server_created_at" ] }
+test18
+test19
+test2
+test20
+1c1
+< { "double" : 123.46 }
+---
+> { "double" : 123.4567 }
+test21
+test22
+1c1
+< { "oid" :  "(0x7) __NOTIMPLEMENTED__" }
+---
+> { "oid" : { "$oid" : "1234567890abcdef1234abcd" } }
+test23
+test24
+1c1
+< { "binary" :  "(0x5) __NOTIMPLEMENTED__" }
+---
+> { "binary" : { "$type" : "80", "$binary" : "MTIzNA==" } }
+test25
+1c1
+< { "undefined" :  "(0x6) __NOTIMPLEMENTED__" }
+---
+> { "undefined" : { "$undefined" : true } }
+test26
+1c1
+< { "time_t" : 80 }
+---
+> { "time_t" : { "$date" : 1234567890000 } }
+test27
+1c1
+< { "regex" :  "(0xB) __NOTIMPLEMENTED__", "abcd" :  "(0x5E) __NOTIMPLEMENTED__", "lx" :  "(0x69) __NOTIMPLEMENTED__" }
+---
+> { "regex" : { "$regex" : "^abcd", "$options" : "ilx" } }
+test28
+0a1
+> { "dbpointer" : { "$ref" : "foo", "$id" : "0123abcd0123abcd0123abcd" } }
+test29
+test3
+1c1
+< { "double" : 1.12 }
+---
+> { "double" : 1.123 }
+test30
+test31
+1c1
+< { "code" :  "(0xF) __NOTIMPLEMENTED__", "" :  "(0x26) __NOTIMPLEMENTED__" }
+---
+> { "code" : "var a = {};" }
+test32
+test33
+test34
+1c1
+< { "a" : 0 }
+---
+> { "a" : 100000000000000 }
+test35
+1c1
+< { "timestamp" :  "(0x11) __NOTIMPLEMENTED__" }
+---
+> { "timestamp" : { "$timestamp" : { "t" : 1234, "i" : 9876 } } }
+test36
+1c1
+< { "minkey" :  "(0xFF) __NOTIMPLEMENTED__" }
+---
+> { "minkey" : { "$minKey" : 1 } }
+test37
+1c1
+< { "maxkey" :  "(0x7F) __NOTIMPLEMENTED__" }
+---
+> { "maxkey" : { "$maxKey" : 1 } }
+test38
+test39
+test4
+1c1
+< { "utc" : 11 }
+---
+> { "utc" : { "$date" : 1319285594123 } }
+test40
+1c1
+< { "" : "" }
+---
+> (null)
+test41
+1c1
+< { "" : "foobar", "foobar" :  "(0xFF) __NOTIMPLEMENTED__" }
+---
+> (null)
+test42
+1c1
+< { "" : "" }
+---
+> (null)
+test43
+1c1
+< { "" : "foobar", "foobar" :  "(0xFF) __NOTIMPLEMENTED__" }
+---
+> (null)
+test44
+1c1
+< { "" :  "(0xC) __NOTIMPLEMENTED__" }
+---
+> (null)
+test45
+1c1
+< { "" :  "(0xC) __NOTIMPLEMENTED__", "ÿÿÿfoobar" :  "(0xFF) __NOTIMPLEMENTED__", "Yµjú[ØAÖX]™" :  "(0x52) __NOTIMPLEMENTED__" }
+---
+> (null)
+test46
+1c1
+< { "" : "" }
+---
+> (null)
+test47
+1c1
+< { "" : "", "" :  "(0xFF) __NOTIMPLEMENTED__" }
+---
+> (null)
+test48
+1c1
+< { "" :  "(0xF) __NOTIMPLEMENTED__", "" :  "(0x15) __NOTIMPLEMENTED__" }
+---
+> (null)
+test49
+1c1
+< { "" :  "(0xF) __NOTIMPLEMENTED__", "" :  "(0x15) __NOTIMPLEMENTED__" }
+---
+> (null)
+test5
+test50
+1c1
+< { "" :  "(0xF) __NOTIMPLEMENTED__", "" :  "(0x15) __NOTIMPLEMENTED__" }
+---
+> { "" : "" }
+test51
+1c1
+< { "" :  "(0xF) __NOTIMPLEMENTED__", "" :  "(0x15) __NOTIMPLEMENTED__" }
+---
+> { "" : "" }
+test52
+1c1
+< { "foo" : { "bar!" : {  } }, "" :  "(0x18) __NOTIMPLEMENTED__" }
+---
+> (null)
+test53
+1c1
+< { "" :  "(0xC) __NOTIMPLEMENTED__", "ÿÿÿfoobar" :  "(0xEE) __NOTIMPLEMENTED__", "Yµjú[ØAÖX]™" :  "(0x52) __NOTIMPLEMENTED__" }
+---
+> (null)
+test54
