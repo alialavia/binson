@@ -48,12 +48,7 @@ if (city1)
     printf("City1 = %s", asstring(city));
     
 ```
-For a more ellaborate example take a look at testsuite/test.c.
-
-## binsontree
-You can also use binsontree.h which creates more advanced data structure and should offer faster lookup. You need to allocate and dellocate dynamic memory though, and it's not being maintained as offen as binson. So prefer to use binson at this moment.
-
-For a sample usage take a look at testsuite/testbison.c.
+For a more ellaborate example take a look at testsuite/testbison.c.
 
 ## Dependencies
 * binson.h uses inttypes.h
