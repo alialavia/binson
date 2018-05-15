@@ -1,0 +1,1 @@
+{ "regex" : { "$regex" : "1234", "$options" : "i" } }

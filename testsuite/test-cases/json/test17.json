@@ -1,0 +1,1 @@
+{ "_id" : { "$oid" : "000000000000000000012345" }, "document" : { "_id" : { "$oid" : "000000000000000000012345" }, "tags" : [ "1", "2", "3", "4" ], "text" : "asdfanother", "source" : { "name" : "blah" } }, "type" : [ "source" ], "missing" : [ "server_created_at" ] }

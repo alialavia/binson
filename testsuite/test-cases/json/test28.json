@@ -1,0 +1,1 @@
+{ "dbpointer" : { "$ref" : "foo", "$id" : "0123abcd0123abcd0123abcd" } }

@@ -1,0 +1,1 @@
+{ "maxkey" : { "$maxKey" : 1 } }

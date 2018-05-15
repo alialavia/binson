@@ -1,0 +1,1 @@
+{ "timestamp" : { "$timestamp" : { "t" : 1234, "i" : 9876 } } }
