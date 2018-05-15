@@ -51,7 +51,6 @@ void tojson(BYTE* buffer, int level, int isarray)
                 case BT_NULLVALUE:
                     printf("null");
                     break;
-                case BT_UTCDATETIME:
                 case BT_INT64BIT:
                     printf("%llu", (unsigned long long)*(getvalue(buffer)));
                     break;
